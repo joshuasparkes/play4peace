@@ -1,36 +1,110 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Play for Peace Football App
+
+A modern web application for managing football club activities, built with Next.js 16, TypeScript, and Tailwind CSS.
+
+## Features
+
+### User Features
+- **Simple Authentication**: No account required - just enter your name to join
+- **Game Booking**: View upcoming games and confirm attendance (170-200 player capacity)
+- **Announcements Feed**: Stay updated with club news and updates
+- **Photo Gallery**: Browse weekly football photos organized by game date
+- **Mobile Optimized**: Fully responsive design with fixed bottom navigation on mobile
+
+### Admin Features
+- **Game Management**: Create and schedule upcoming games with location and player limits
+- **Announcement Posting**: Share important updates with all players
+- **Photo Upload**:
+  - Drag-and-drop photo upload
+  - Organize photos by week
+  - Control visibility (photos can be uploaded and made visible the next day)
+  - Support for photographer access
+
+## Tech Stack
+
+- **Framework**: Next.js 16 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS v4
+- **Icons**: FontAwesome
+- **Storage**: LocalStorage (client-side, for demo purposes)
 
 ## Getting Started
 
-First, run the development server:
+### Installation
+
+```bash
+npm install
+```
+
+### Development
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Building for Production
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm start
+```
 
-## Learn More
+## Usage
 
-To learn more about Next.js, take a look at the following resources:
+### User Access
+1. Visit the homepage
+2. Enter your name
+3. Start booking games, viewing announcements, and browsing photos
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Admin Access
+1. Navigate to `/admin` or click the Admin button (if logged in as admin)
+2. Enter your name and the admin passcode: `4peace`
+3. Access three admin panels:
+   - **Games**: Schedule new games, view attendees
+   - **Announcements**: Post updates
+   - **Photos**: Upload and manage photo gallery
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project Structure
 
-## Deploy on Vercel
+```
+play4peace/
+├── app/                    # Next.js app directory
+│   ├── admin/             # Admin panel
+│   ├── announcements/     # Announcements page
+│   ├── gallery/           # Photo gallery
+│   └── page.tsx           # Games/booking page
+├── components/            # React components
+│   ├── admin/            # Admin-specific components
+│   ├── LoginForm.tsx     # Name entry form
+│   └── Navigation.tsx    # App navigation
+├── contexts/             # React contexts
+│   └── AuthContext.tsx   # Authentication state
+├── lib/                  # Utilities
+│   ├── storage.ts        # LocalStorage helpers
+│   └── seedData.ts       # Sample data seeding
+└── types/                # TypeScript types
+    └── index.ts          # Shared type definitions
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Mobile Optimization
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Sticky header navigation on desktop
+- Fixed bottom navigation on mobile devices
+- Responsive layouts for all screen sizes
+- Touch-optimized interactions
+- Truncated text for small screens
+
+## Future Enhancements
+
+- Backend database integration (replace LocalStorage)
+- Real user authentication with secure login
+- Push notifications for new announcements
+- Image optimization and CDN storage
+- Player statistics and attendance tracking
+- Payment integration for game fees
+
+## License
+
+This project is built for Play for Peace Football Club.
