@@ -3,6 +3,7 @@
 import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import Navigation from '@/components/Navigation';
 import { getGames, toggleAttendance, seedInitialData, getUsersDisplayNames } from '@/lib/firestore';
 import { Game } from '@/types';
@@ -79,7 +80,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen  bg-gray-50">
       <Navigation />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8">
@@ -103,10 +104,10 @@ export default function Home() {
               const spotsLeft = game.maxPlayers - game.attendees.length;
 
               return (
-                <div key={game.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+                <div key={game.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow">
                   <div className="bg-gradient-to-r from-green-500 to-blue-500 h-2"></div>
 
-                  <div className="p-6">
+                  <Link href={`/games/${game.id}`} className="block p-6 hover:bg-gray-50 transition-colors">
                     <div className="flex justify-between items-start mb-4">
                       <div>
                         <h3 className="text-lg font-semibold text-gray-900">
@@ -157,20 +158,31 @@ export default function Home() {
                       </div>
                     )}
 
-                    <button
-                      onClick={() => handleToggleAttendance(game.id)}
-                      className={`w-full py-2 px-4 rounded-lg font-semibold transition ${
-                        isUserAttending
-                          ? 'bg-red-100 text-red-700 hover:bg-red-200'
-                          : spotsLeft > 0
-                          ? 'bg-green-600 text-white hover:bg-green-700'
-                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      }`}
-                      disabled={!isUserAttending && spotsLeft === 0}
-                    >
-                      {isUserAttending ? "I can't make it" : spotsLeft > 0 ? "I'm playing!" : 'Game is full'}
-                    </button>
-                  </div>
+                    <div className="flex gap-2">
+                      <div className="flex-1">
+                        <div className="py-2 px-4 rounded-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white text-center">
+                          View Details
+                        </div>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleToggleAttendance(game.id);
+                        }}
+                        disabled={!isUserAttending && spotsLeft === 0}
+                        className={`flex-1 py-2 px-4 rounded-lg font-semibold transition duration-200 ${
+                          isUserAttending
+                            ? 'bg-red-600 hover:bg-red-700 text-white'
+                            : spotsLeft === 0
+                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            : 'bg-green-600 hover:bg-green-700 text-white'
+                        }`}
+                      >
+                        {isUserAttending ? 'Leave' : spotsLeft === 0 ? 'Full' : 'Join'}
+                      </button>
+                    </div>
+                  </Link>
                 </div>
               );
             })}

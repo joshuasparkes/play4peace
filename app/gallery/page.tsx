@@ -14,6 +14,7 @@ export default function GalleryPage() {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedWeek, setSelectedWeek] = useState<string | null>(null);
+  const [fullscreenPhoto, setFullscreenPhoto] = useState<Photo | null>(null);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -27,9 +28,11 @@ export default function GalleryPage() {
   const loadPhotos = async () => {
     try {
       const loadedPhotos = await getVisiblePhotos();
+      console.log('Loaded photos:', loadedPhotos);
       setPhotos(loadedPhotos);
     } catch (error) {
       console.error('Error loading photos:', error);
+      alert('Error loading photos. Check console for details.');
     } finally {
       setLoading(false);
     }
@@ -134,22 +137,25 @@ export default function GalleryPage() {
                 </h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {groupedPhotos[week].map((photo) => (
-                    <div
+                    <button
                       key={photo.id}
-                      className="relative aspect-square bg-gray-200 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition group"
+                      onClick={() => setFullscreenPhoto(photo)}
+                      className="relative aspect-square bg-gray-200 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition group cursor-pointer"
                     >
                       <Image
                         src={photo.url}
                         alt={`Photo from ${week}`}
-                        fill
-                        className="object-cover"
+                        width={400}
+                        height={400}
+                        unoptimized
+                        className="w-full h-full object-cover"
                       />
                       <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition flex items-end p-3">
                         <p className="text-white text-xs opacity-0 group-hover:opacity-100 transition">
                           Uploaded by {photo.uploadedBy}
                         </p>
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -157,6 +163,39 @@ export default function GalleryPage() {
           </div>
         )}
       </main>
+
+      {/* Fullscreen Modal */}
+      {fullscreenPhoto && (
+        <div
+          className="fixed inset-0 z-50 bg-black bg-opacity-95 flex items-center justify-center p-4"
+          onClick={() => setFullscreenPhoto(null)}
+        >
+          <button
+            onClick={() => setFullscreenPhoto(null)}
+            className="absolute top-4 right-4 text-white text-4xl font-bold hover:text-gray-300 transition z-10"
+            aria-label="Close"
+          >
+            ×
+          </button>
+          <div className="relative w-full h-full max-w-6xl max-h-[90vh] flex items-center justify-center">
+            <Image
+              src={fullscreenPhoto.url}
+              alt="Fullscreen photo"
+              width={1200}
+              height={1200}
+              unoptimized
+              className="max-w-full max-h-full object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+          <div className="absolute bottom-4 left-0 right-0 text-center text-white">
+            <p className="text-sm">Uploaded by {fullscreenPhoto.uploadedBy}</p>
+            <p className="text-xs text-gray-300 mt-1">
+              {formatWeekDate(fullscreenPhoto.weekDate)}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
