@@ -26,7 +26,16 @@ export interface Photo {
 }
 
 export interface User {
-  name: string;
+  uid: string;
+  email: string;
+  displayName: string;
   isAdmin: boolean;
+  photoURL?: string;
+  createdAt: string;
   lastActive: string;
+}
+
+export interface UserProfile extends User {
+  gamesAttended: number;
+  totalGamesBooked: number;
 }

@@ -2,14 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFutbol, faBullhorn, faImages, faUserShield, faRightFromBracket, faUser } from '@fortawesome/free-solid-svg-icons';
 import { useState } from 'react';
 
 export default function Navigation() {
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const { user, logout } = useFirebaseAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
@@ -57,10 +57,13 @@ export default function Navigation() {
 
           {/* Desktop User Menu */}
           <div className="hidden md:flex items-center space-x-3">
-            <div className="flex items-center text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-lg">
+            <Link
+              href="/profile"
+              className="flex items-center text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-lg hover:bg-gray-100 transition"
+            >
               <FontAwesomeIcon icon={faUser} className="mr-2 w-3 h-3" />
-              <span className="font-semibold">{user?.name}</span>
-            </div>
+              <span className="font-semibold">{user?.displayName}</span>
+            </Link>
             {user?.isAdmin && (
               <Link
                 href="/admin"
@@ -80,10 +83,13 @@ export default function Navigation() {
 
           {/* Mobile User Info */}
           <div className="md:hidden flex items-center space-x-2">
-            <div className="flex items-center text-xs text-gray-600 bg-gray-50 px-2 py-1.5 rounded-lg">
+            <Link
+              href="/profile"
+              className="flex items-center text-xs text-gray-600 bg-gray-50 px-2 py-1.5 rounded-lg hover:bg-gray-100 transition"
+            >
               <FontAwesomeIcon icon={faUser} className="mr-1.5 w-3 h-3" />
-              <span className="font-semibold max-w-[80px] truncate">{user?.name}</span>
-            </div>
+              <span className="font-semibold max-w-[80px] truncate">{user?.displayName}</span>
+            </Link>
             <button
               onClick={logout}
               className="p-2 text-gray-700 hover:bg-gray-100 rounded-lg transition"

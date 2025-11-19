@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getGames, addGame, deleteGame } from '@/lib/storage';
+import { getGames, addGame, deleteGame, getUsersDisplayNames } from '@/lib/firestore';
 import { Game } from '@/types';
 
 export default function GameManager() {
   const [games, setGames] = useState<Game[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [userNames, setUserNames] = useState<{ [uid: string]: string }>({});
   const [formData, setFormData] = useState({
     date: '',
     time: '10:00',
@@ -18,33 +19,56 @@ export default function GameManager() {
     loadGames();
   }, []);
 
-  const loadGames = () => {
-    const loadedGames = getGames().sort((a, b) =>
-      new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
-    setGames(loadedGames);
+  const loadGames = async () => {
+    try {
+      const loadedGames = await getGames();
+      setGames(loadedGames);
+
+      // Fetch all attendee names
+      const allAttendees = new Set<string>();
+      loadedGames.forEach(game => {
+        game.attendees.forEach(uid => allAttendees.add(uid));
+      });
+
+      if (allAttendees.size > 0) {
+        const names = await getUsersDisplayNames(Array.from(allAttendees));
+        setUserNames(names);
+      }
+    } catch (error) {
+      console.error('Error loading games:', error);
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    addGame({
-      ...formData,
-      attendees: [],
-    });
-    setFormData({
-      date: '',
-      time: '10:00',
-      location: 'Community Football Pitch',
-      maxPlayers: 22,
-    });
-    setShowForm(false);
-    loadGames();
+    try {
+      await addGame({
+        ...formData,
+        attendees: [],
+      });
+      setFormData({
+        date: '',
+        time: '10:00',
+        location: 'Community Football Pitch',
+        maxPlayers: 22,
+      });
+      setShowForm(false);
+      await loadGames();
+    } catch (error) {
+      console.error('Error adding game:', error);
+      alert('Failed to add game. Please try again.');
+    }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this game?')) {
-      deleteGame(id);
-      loadGames();
+      try {
+        await deleteGame(id);
+        await loadGames();
+      } catch (error) {
+        console.error('Error deleting game:', error);
+        alert('Failed to delete game. Please try again.');
+      }
     }
   };
 
@@ -164,12 +188,12 @@ export default function GameManager() {
                       <div className="mt-2">
                         <p className="text-xs text-gray-600 mb-1">Attendees:</p>
                         <div className="flex flex-wrap gap-1">
-                          {game.attendees.map((attendee, index) => (
+                          {game.attendees.map((attendeeUid, index) => (
                             <span
                               key={index}
                               className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
                             >
-                              {attendee}
+                              {userNames[attendeeUid] || 'Loading...'}
                             </span>
                           ))}
                         </div>

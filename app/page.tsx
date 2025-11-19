@@ -1,38 +1,62 @@
 'use client';
 
-import { useAuth } from '@/contexts/AuthContext';
+import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
 import { useEffect, useState } from 'react';
-import LoginForm from '@/components/LoginForm';
+import { useRouter } from 'next/navigation';
 import Navigation from '@/components/Navigation';
-import { getGames, toggleAttendance } from '@/lib/storage';
-import { seedInitialData } from '@/lib/seedData';
+import { getGames, toggleAttendance, seedInitialData, getUsersDisplayNames } from '@/lib/firestore';
 import { Game } from '@/types';
 
 export default function Home() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useFirebaseAuth();
+  const router = useRouter();
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userNames, setUserNames] = useState<{ [uid: string]: string }>({});
 
   useEffect(() => {
-    if (isAuthenticated) {
-      seedInitialData();
-      loadGames();
+    if (!authLoading && !isAuthenticated) {
+      router.push('/login');
+    } else if (isAuthenticated) {
+      initializeData();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, authLoading, router]);
 
-  const loadGames = () => {
-    const loadedGames = getGames();
-    const sortedGames = loadedGames.sort((a, b) =>
-      new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
-    setGames(sortedGames);
-    setLoading(false);
+  const initializeData = async () => {
+    await seedInitialData();
+    await loadGames();
   };
 
-  const handleToggleAttendance = (gameId: string) => {
-    if (user?.name) {
-      toggleAttendance(gameId, user.name);
-      loadGames();
+  const loadGames = async () => {
+    try {
+      const loadedGames = await getGames();
+      setGames(loadedGames);
+
+      // Fetch all attendee names
+      const allAttendees = new Set<string>();
+      loadedGames.forEach(game => {
+        game.attendees.forEach(uid => allAttendees.add(uid));
+      });
+
+      if (allAttendees.size > 0) {
+        const names = await getUsersDisplayNames(Array.from(allAttendees));
+        setUserNames(names);
+      }
+    } catch (error) {
+      console.error('Error loading games:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleToggleAttendance = async (gameId: string) => {
+    if (user?.uid) {
+      try {
+        await toggleAttendance(gameId, user.uid);
+        await loadGames();
+      } catch (error) {
+        console.error('Error toggling attendance:', error);
+      }
     }
   };
 
@@ -46,8 +70,12 @@ export default function Home() {
     });
   };
 
-  if (!isAuthenticated) {
-    return <LoginForm />;
+  if (authLoading || !user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-gray-500">Loading...</p>
+      </div>
+    );
   }
 
   return (
@@ -71,7 +99,7 @@ export default function Home() {
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {games.map((game) => {
-              const isUserAttending = game.attendees.includes(user?.name || '');
+              const isUserAttending = game.attendees.includes(user?.uid || '');
               const spotsLeft = game.maxPlayers - game.attendees.length;
 
               return (
@@ -112,12 +140,12 @@ export default function Home() {
                       <div className="mb-4">
                         <p className="text-xs text-gray-600 mb-2">Confirmed players:</p>
                         <div className="flex flex-wrap gap-2">
-                          {game.attendees.slice(0, 5).map((attendee, index) => (
+                          {game.attendees.slice(0, 5).map((attendeeUid, index) => (
                             <span
                               key={index}
                               className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
                             >
-                              {attendee}
+                              {userNames[attendeeUid] || 'Loading...'}
                             </span>
                           ))}
                           {game.attendees.length > 5 && (

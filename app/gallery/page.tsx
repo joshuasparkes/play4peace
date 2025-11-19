@@ -1,34 +1,38 @@
 'use client';
 
-import { useAuth } from '@/contexts/AuthContext';
+import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navigation from '@/components/Navigation';
-import { getPhotos } from '@/lib/storage';
+import { getVisiblePhotos } from '@/lib/firestore';
 import { Photo } from '@/types';
 import Image from 'next/image';
 
 export default function GalleryPage() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useFirebaseAuth();
   const router = useRouter();
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedWeek, setSelectedWeek] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/');
+    if (!authLoading && !isAuthenticated) {
+      router.push('/login');
       return;
+    } else if (isAuthenticated) {
+      loadPhotos();
     }
-    loadPhotos();
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, authLoading, router]);
 
-  const loadPhotos = () => {
-    const loadedPhotos = getPhotos()
-      .filter(photo => photo.visible)
-      .sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime());
-    setPhotos(loadedPhotos);
-    setLoading(false);
+  const loadPhotos = async () => {
+    try {
+      const loadedPhotos = await getVisiblePhotos();
+      setPhotos(loadedPhotos);
+    } catch (error) {
+      console.error('Error loading photos:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const groupPhotosByWeek = () => {

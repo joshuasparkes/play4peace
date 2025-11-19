@@ -1,17 +1,18 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { getPhotos, addPhoto, deletePhoto, makePhotosVisible } from '@/lib/storage';
+import { getPhotos, uploadPhoto, deletePhoto, makePhotosVisible } from '@/lib/firestore';
 import { Photo } from '@/types';
-import { useAuth } from '@/contexts/AuthContext';
+import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
 import Image from 'next/image';
 
 export default function PhotoManager() {
-  const { user } = useAuth();
+  const { user } = useFirebaseAuth();
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [weekDate, setWeekDate] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     loadPhotos();
@@ -19,11 +20,13 @@ export default function PhotoManager() {
     setWeekDate(today);
   }, []);
 
-  const loadPhotos = () => {
-    const loadedPhotos = getPhotos().sort((a, b) =>
-      new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
-    );
-    setPhotos(loadedPhotos);
+  const loadPhotos = async () => {
+    try {
+      const loadedPhotos = await getPhotos();
+      setPhotos(loadedPhotos);
+    } catch (error) {
+      console.error('Error loading photos:', error);
+    }
   };
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -61,38 +64,46 @@ export default function PhotoManager() {
       return;
     }
 
-    for (const file of selectedFiles) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          addPhoto({
-            url: e.target.result as string,
-            weekDate,
-            uploadedBy: user?.name || 'Admin',
-          });
-        }
-      };
-      reader.readAsDataURL(file);
-    }
+    setUploading(true);
+    try {
+      const uploadPromises = selectedFiles.map(file =>
+        uploadPhoto(file, weekDate, user?.displayName || 'Admin')
+      );
 
-    setSelectedFiles([]);
-    setTimeout(() => {
-      loadPhotos();
+      await Promise.all(uploadPromises);
+
+      setSelectedFiles([]);
+      await loadPhotos();
       alert(`${selectedFiles.length} photo(s) uploaded successfully!`);
-    }, 500);
-  };
-
-  const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to delete this photo?')) {
-      deletePhoto(id);
-      loadPhotos();
+    } catch (error) {
+      console.error('Error uploading photos:', error);
+      alert('Failed to upload photos. Please try again.');
+    } finally {
+      setUploading(false);
     }
   };
 
-  const handleMakeVisible = (weekDate: string) => {
+  const handleDelete = async (id: string) => {
+    if (confirm('Are you sure you want to delete this photo?')) {
+      try {
+        await deletePhoto(id);
+        await loadPhotos();
+      } catch (error) {
+        console.error('Error deleting photo:', error);
+        alert('Failed to delete photo. Please try again.');
+      }
+    }
+  };
+
+  const handleMakeVisible = async (weekDate: string) => {
     if (confirm(`Make all photos from ${new Date(weekDate).toLocaleDateString('en-GB')} visible to users?`)) {
-      makePhotosVisible(weekDate);
-      loadPhotos();
+      try {
+        await makePhotosVisible(weekDate);
+        await loadPhotos();
+      } catch (error) {
+        console.error('Error making photos visible:', error);
+        alert('Failed to make photos visible. Please try again.');
+      }
     }
   };
 
@@ -225,9 +236,10 @@ export default function PhotoManager() {
             </div>
             <button
               onClick={handleUpload}
-              className="mt-4 w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition font-semibold"
+              disabled={uploading}
+              className="mt-4 w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Upload {selectedFiles.length} Photo{selectedFiles.length !== 1 ? 's' : ''}
+              {uploading ? 'Uploading...' : `Upload ${selectedFiles.length} Photo${selectedFiles.length !== 1 ? 's' : ''}`}
             </button>
           </div>
         )}

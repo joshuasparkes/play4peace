@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getAnnouncements, addAnnouncement, deleteAnnouncement } from '@/lib/storage';
+import { getAnnouncements, addAnnouncement, deleteAnnouncement } from '@/lib/firestore';
 import { Announcement } from '@/types';
-import { useAuth } from '@/contexts/AuthContext';
+import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
 
 export default function AnnouncementManager() {
-  const { user } = useAuth();
+  const { user } = useFirebaseAuth();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -18,29 +18,43 @@ export default function AnnouncementManager() {
     loadAnnouncements();
   }, []);
 
-  const loadAnnouncements = () => {
-    const loadedAnnouncements = getAnnouncements();
-    setAnnouncements(loadedAnnouncements);
+  const loadAnnouncements = async () => {
+    try {
+      const loadedAnnouncements = await getAnnouncements();
+      setAnnouncements(loadedAnnouncements);
+    } catch (error) {
+      console.error('Error loading announcements:', error);
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    addAnnouncement({
-      ...formData,
-      author: user?.name || 'Admin',
-    });
-    setFormData({
-      title: '',
-      content: '',
-    });
-    setShowForm(false);
-    loadAnnouncements();
+    try {
+      await addAnnouncement({
+        ...formData,
+        author: user?.displayName || 'Admin',
+      });
+      setFormData({
+        title: '',
+        content: '',
+      });
+      setShowForm(false);
+      await loadAnnouncements();
+    } catch (error) {
+      console.error('Error adding announcement:', error);
+      alert('Failed to add announcement. Please try again.');
+    }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this announcement?')) {
-      deleteAnnouncement(id);
-      loadAnnouncements();
+      try {
+        await deleteAnnouncement(id);
+        await loadAnnouncements();
+      } catch (error) {
+        console.error('Error deleting announcement:', error);
+        alert('Failed to delete announcement. Please try again.');
+      }
     }
   };
 

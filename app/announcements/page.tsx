@@ -1,30 +1,36 @@
 'use client';
 
-import { useAuth } from '@/contexts/AuthContext';
+import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navigation from '@/components/Navigation';
-import { getAnnouncements } from '@/lib/storage';
+import { getAnnouncements } from '@/lib/firestore';
 import { Announcement } from '@/types';
 
 export default function AnnouncementsPage() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useFirebaseAuth();
   const router = useRouter();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/');
+    if (!authLoading && !isAuthenticated) {
+      router.push('/login');
       return;
+    } else if (isAuthenticated) {
+      loadAnnouncements();
     }
-    loadAnnouncements();
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, authLoading, router]);
 
-  const loadAnnouncements = () => {
-    const loadedAnnouncements = getAnnouncements();
-    setAnnouncements(loadedAnnouncements);
-    setLoading(false);
+  const loadAnnouncements = async () => {
+    try {
+      const loadedAnnouncements = await getAnnouncements();
+      setAnnouncements(loadedAnnouncements);
+    } catch (error) {
+      console.error('Error loading announcements:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const formatDate = (dateString: string) => {
