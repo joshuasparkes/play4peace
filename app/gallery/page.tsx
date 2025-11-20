@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Navigation from '@/components/Navigation';
 import { getVisiblePhotos } from '@/lib/firestore';
 import { Photo } from '@/types';
+import Image from 'next/image';
 
 export default function GalleryPage() {
   const { isAuthenticated, loading: authLoading } = useFirebaseAuth();
@@ -139,19 +140,18 @@ export default function GalleryPage() {
                     <div
                       key={photo.id}
                       onClick={() => setFullscreenPhoto(photo)}
-                      className="relative aspect-square bg-gray-200 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition group cursor-pointer"
+                      className="relative group cursor-pointer"
                     >
-                      <img
-                        src={photo.url}
-                        alt={`Photo from ${week}`}
-                        loading="lazy"
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          console.error('Image failed to load:', photo.url);
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition flex items-end p-3 pointer-events-none">
+                      <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition">
+                        <Image
+                          src={photo.url}
+                          alt={`Photo from ${week}`}
+                          width={400}
+                          height={400}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-30 transition flex items-end p-3 pointer-events-none rounded-lg">
                         <p className="text-white text-xs opacity-0 group-hover:opacity-100 transition">
                           Uploaded by {photo.uploadedBy}
                         </p>
@@ -179,14 +179,13 @@ export default function GalleryPage() {
             ×
           </button>
           <div className="relative w-full h-full max-w-6xl max-h-[90vh] flex items-center justify-center">
-            <img
+            <Image
               src={fullscreenPhoto.url}
               alt="Fullscreen photo"
+              width={1200}
+              height={1200}
               className="max-w-full max-h-full object-contain"
               onClick={(e) => e.stopPropagation()}
-              onError={(e) => {
-                console.error('Fullscreen image failed to load:', fullscreenPhoto.url);
-              }}
             />
           </div>
           <div className="absolute bottom-4 left-0 right-0 text-center text-white">
