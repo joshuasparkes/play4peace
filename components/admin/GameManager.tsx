@@ -88,7 +88,7 @@ export default function GameManager() {
         <h2 className="text-2xl font-bold text-gray-900">Manage Games</h2>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="px-4 py-2 bg-primary-600 text-white rounded-pill hover:bg-primary-700 transition font-medium"
+          className="px-4 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition font-medium"
         >
           {showForm ? 'Cancel' : 'Add New Game'}
         </button>
@@ -156,7 +156,7 @@ export default function GameManager() {
 
             <button
               type="submit"
-              className="w-full bg-primary-600 text-white py-2 px-4 rounded-pill hover:bg-primary-700 transition font-semibold"
+              className="w-full bg-purple-600 text-white py-2 px-4 rounded-full hover:bg-purple-700 transition font-semibold"
             >
               Create Game
             </button>
@@ -191,7 +191,7 @@ export default function GameManager() {
                           {game.attendees.map((attendeeUid, index) => (
                             <span
                               key={index}
-                              className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800"
+                              className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-primary-800"
                             >
                               {userNames[attendeeUid] || 'Loading...'}
                             </span>

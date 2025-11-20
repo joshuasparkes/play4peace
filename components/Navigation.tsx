@@ -50,9 +50,9 @@ export default function Navigation() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center px-4 py-2 rounded-pill text-sm font-medium transition ${
+                className={`flex items-center px-4 py-2 rounded-full text-sm font-medium transition ${
                   isActive(item.href)
-                    ? 'bg-primary-100 text-primary-800'
+                    ? 'bg-purple-100 text-primary-800'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
               >
@@ -66,7 +66,7 @@ export default function Navigation() {
           <div className="hidden md:flex items-center space-x-3">
             <Link
               href="/profile"
-              className="flex items-center text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-pill hover:bg-gray-100 transition"
+              className="flex items-center text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-full hover:bg-gray-100 transition"
             >
               <FontAwesomeIcon icon={faUser} className="mr-2 w-3 h-3" />
               <span className="font-semibold">{user?.displayName}</span>
@@ -74,7 +74,7 @@ export default function Navigation() {
             {user?.isAdmin && (
               <Link
                 href="/admin"
-                className="flex items-center px-3 py-2 bg-primary-500 text-white text-sm rounded-pill hover:bg-primary-600 transition font-medium"
+                className="flex items-center px-3 py-2 bg-purple-500 text-white text-sm rounded-full hover:bg-purple-600 transition font-medium"
               >
                 <FontAwesomeIcon icon={faUserShield} className="mr-2 w-4 h-4" />
                 Admin
@@ -82,7 +82,7 @@ export default function Navigation() {
             )}
             <button
               onClick={logout}
-              className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-pill transition"
+              className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-full transition"
             >
               <FontAwesomeIcon icon={faRightFromBracket} className="w-4 h-4" />
             </button>
@@ -92,14 +92,14 @@ export default function Navigation() {
           <div className="md:hidden flex items-center space-x-2">
             <Link
               href="/profile"
-              className="flex items-center text-xs text-gray-600 bg-gray-50 px-2 py-1.5 rounded-pill hover:bg-gray-100 transition"
+              className="flex items-center text-xs text-gray-600 bg-gray-50 px-2 py-1.5 rounded-full hover:bg-gray-100 transition"
             >
               <FontAwesomeIcon icon={faUser} className="mr-1.5 w-3 h-3" />
               <span className="font-semibold max-w-[80px] truncate">{user?.displayName}</span>
             </Link>
             <button
               onClick={logout}
-              className="p-2 text-gray-700 hover:bg-gray-100 rounded-pill transition"
+              className="p-2 text-gray-700 hover:bg-gray-100 rounded-full transition"
             >
               <FontAwesomeIcon icon={faRightFromBracket} className="w-4 h-4" />
             </button>

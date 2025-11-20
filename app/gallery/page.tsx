@@ -82,9 +82,9 @@ export default function GalleryPage() {
           <div className="mb-6 flex flex-wrap gap-2">
             <button
               onClick={() => setSelectedWeek(null)}
-              className={`px-4 py-2 rounded-pill font-medium transition ${
+              className={`px-4 py-2 rounded-full font-medium transition ${
                 selectedWeek === null
-                  ? 'bg-primary-600 text-white'
+                  ? 'bg-purple-600 text-white'
                   : 'bg-white text-gray-700 hover:bg-gray-100'
               }`}
             >
@@ -94,9 +94,9 @@ export default function GalleryPage() {
               <button
                 key={week}
                 onClick={() => setSelectedWeek(week)}
-                className={`px-4 py-2 rounded-pill font-medium transition ${
+                className={`px-4 py-2 rounded-full font-medium transition ${
                   selectedWeek === week
-                    ? 'bg-primary-600 text-white'
+                    ? 'bg-purple-600 text-white'
                     : 'bg-white text-gray-700 hover:bg-gray-100'
                 }`}
               >

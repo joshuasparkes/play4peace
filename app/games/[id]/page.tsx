@@ -159,12 +159,12 @@ export default function GameDetailsPage() {
           <button
             onClick={handleToggleAttendance}
             disabled={!isUserAttending && spotsLeft === 0}
-            className={`w-full md:w-auto px-6 py-3 rounded-pill font-semibold transition duration-200 ${
+            className={`w-full md:w-auto px-6 py-3 rounded-full font-semibold transition duration-200 ${
               isUserAttending
-                ? 'bg-red-600 hover:bg-red-700 text-white'
+                ? 'bg-white hover:bg-red-200 text-red-600'
                 : spotsLeft === 0
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-primary-600 hover:bg-primary-700 text-white'
+                : 'bg-purple-600 hover:bg-purple-700 text-white'
             }`}
           >
             {isUserAttending ? 'Leave Game' : spotsLeft === 0 ? 'Game Full' : 'Join Game'}

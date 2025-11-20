@@ -164,7 +164,7 @@ export default function PhotoManager() {
           onDrop={handleDrop}
           className={`border-2 border-dashed rounded-lg p-8 text-center transition ${
             isDragging
-              ? 'border-primary-500 bg-primary-50'
+              ? 'border-primary-500 bg-purple-50'
               : 'border-gray-300 hover:border-gray-400'
           }`}
         >
@@ -237,7 +237,7 @@ export default function PhotoManager() {
             <button
               onClick={handleUpload}
               disabled={uploading}
-              className="mt-4 w-full bg-primary-600 text-white py-2 px-4 rounded-pill hover:bg-primary-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              className="mt-4 w-full bg-purple-600 text-white py-2 px-4 rounded-full hover:bg-purple-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {uploading ? 'Uploading...' : `Upload ${selectedFiles.length} Photo${selectedFiles.length !== 1 ? 's' : ''}`}
             </button>
@@ -269,13 +269,13 @@ export default function PhotoManager() {
                   {!allVisible && (
                     <button
                       onClick={() => handleMakeVisible(week)}
-                      className="px-4 py-2 bg-primary-600 text-white rounded-pill hover:bg-primary-700 transition text-sm font-medium"
+                      className="px-4 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition text-sm font-medium"
                     >
                       Make Visible to Users
                     </button>
                   )}
                   {allVisible && (
-                    <span className="px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-sm font-medium">
+                    <span className="px-3 py-1 bg-purple-100 text-primary-800 rounded-full text-sm font-medium">
                       Visible
                     </span>
                   )}

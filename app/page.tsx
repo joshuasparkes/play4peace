@@ -128,7 +128,7 @@ export default function Home() {
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
-                          className="bg-primary-500 h-2 rounded-full transition-all"
+                          className="bg-purple-500 h-2 rounded-full transition-all"
                           style={{ width: `${(game.attendees.length / game.maxPlayers) * 100}%` }}
                         ></div>
                       </div>
@@ -144,7 +144,7 @@ export default function Home() {
                           {game.attendees.slice(0, 5).map((attendeeUid, index) => (
                             <span
                               key={index}
-                              className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800"
+                              className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-primary-800"
                             >
                               {userNames[attendeeUid] || 'Loading...'}
                             </span>
@@ -160,7 +160,7 @@ export default function Home() {
 
                     <div className="flex gap-2">
                       <div className="flex-1">
-                        <div className="py-2 px-4 rounded-pill font-semibold bg-primary-600 hover:bg-primary-700 text-white text-center">
+                        <div className="py-2 px-4 rounded-full font-semibold bg-purple-500 hover:bg-purple-700 text-white text-center">
                           View Details
                         </div>
                       </div>
@@ -171,12 +171,12 @@ export default function Home() {
                           handleToggleAttendance(game.id);
                         }}
                         disabled={!isUserAttending && spotsLeft === 0}
-                        className={`flex-1 py-2 px-4 rounded-pill font-semibold transition duration-200 ${
+                        className={`flex-1 py-2 px-4 rounded-full font-semibold transition duration-200 ${
                           isUserAttending
-                            ? 'bg-red-600 hover:bg-red-700 text-white'
+                            ? 'bg-white hover:bg-red-200 text-red-400'
                             : spotsLeft === 0
                             ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                            : 'bg-primary-600 hover:bg-primary-700 text-white'
+                            : 'bg-purple-600 hover:bg-purple-700 text-white'
                         }`}
                       >
                         {isUserAttending ? 'Leave' : spotsLeft === 0 ? 'Full' : 'Join'}

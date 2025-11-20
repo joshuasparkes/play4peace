@@ -90,7 +90,7 @@ export default function AnnouncementsPage() {
                     <h2 className="text-xl font-semibold text-gray-900">
                       {announcement.title}
                     </h2>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800 ml-2">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-primary-800 ml-2">
                       New
                     </span>
                   </div>
