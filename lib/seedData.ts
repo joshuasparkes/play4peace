@@ -30,7 +30,7 @@ export const seedInitialData = () => {
   if (getAnnouncements().length === 0) {
     // Add a welcome announcement
     addAnnouncement({
-      title: 'Welcome to Play for Peace!',
+      title: 'Welcome to Play4Peace!',
       content: 'Thanks for joining our football community. Book your spot for upcoming games and stay tuned for announcements!',
       author: 'Admin',
     });

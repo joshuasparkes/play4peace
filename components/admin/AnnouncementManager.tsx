@@ -75,7 +75,7 @@ export default function AnnouncementManager() {
         <h2 className="text-2xl font-bold text-gray-900">Manage Announcements</h2>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+          className="px-4 py-2 bg-primary-600 text-white rounded-pill hover:bg-primary-700 transition font-medium"
         >
           {showForm ? 'Cancel' : 'Post New Announcement'}
         </button>
@@ -94,7 +94,7 @@ export default function AnnouncementManager() {
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="Important Update"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
                 required
               />
             </div>
@@ -108,14 +108,14 @@ export default function AnnouncementManager() {
                 onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                 placeholder="Share important information with all players..."
                 rows={5}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none resize-none"
                 required
               />
             </div>
 
             <button
               type="submit"
-              className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition font-semibold"
+              className="w-full bg-primary-600 text-white py-2 px-4 rounded-pill hover:bg-primary-700 transition font-semibold"
             >
               Post Announcement
             </button>

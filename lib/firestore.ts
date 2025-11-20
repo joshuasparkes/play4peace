@@ -234,7 +234,7 @@ export const seedInitialData = async (): Promise<void> => {
 
   if (announcementsSnapshot.empty) {
     await addAnnouncement({
-      title: 'Welcome to Play for Peace!',
+      title: 'Welcome to Play4Peace!',
       content: 'Thanks for joining our football community. Book your spot for upcoming games and stay tuned for announcements!',
       author: 'Admin',
     });

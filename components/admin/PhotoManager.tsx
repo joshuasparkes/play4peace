@@ -151,7 +151,7 @@ export default function PhotoManager() {
             type="date"
             value={weekDate}
             onChange={(e) => setWeekDate(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
           />
           <p className="text-xs text-gray-500 mt-1">
             Photos will be grouped by this week
@@ -164,7 +164,7 @@ export default function PhotoManager() {
           onDrop={handleDrop}
           className={`border-2 border-dashed rounded-lg p-8 text-center transition ${
             isDragging
-              ? 'border-blue-500 bg-blue-50'
+              ? 'border-primary-500 bg-primary-50'
               : 'border-gray-300 hover:border-gray-400'
           }`}
         >
@@ -183,7 +183,7 @@ export default function PhotoManager() {
           </svg>
           <div className="mt-4">
             <label className="cursor-pointer">
-              <span className="text-blue-600 hover:text-blue-700 font-medium">
+              <span className="text-primary-600 hover:text-primary-700 font-medium">
                 Click to upload
               </span>
               <span className="text-gray-600"> or drag and drop</span>
@@ -237,7 +237,7 @@ export default function PhotoManager() {
             <button
               onClick={handleUpload}
               disabled={uploading}
-              className="mt-4 w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              className="mt-4 w-full bg-primary-600 text-white py-2 px-4 rounded-pill hover:bg-primary-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {uploading ? 'Uploading...' : `Upload ${selectedFiles.length} Photo${selectedFiles.length !== 1 ? 's' : ''}`}
             </button>
@@ -269,13 +269,13 @@ export default function PhotoManager() {
                   {!allVisible && (
                     <button
                       onClick={() => handleMakeVisible(week)}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium"
+                      className="px-4 py-2 bg-primary-600 text-white rounded-pill hover:bg-primary-700 transition text-sm font-medium"
                     >
                       Make Visible to Users
                     </button>
                   )}
                   {allVisible && (
-                    <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                    <span className="px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-sm font-medium">
                       Visible
                     </span>
                   )}

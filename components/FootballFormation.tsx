@@ -71,7 +71,7 @@ export default function FootballFormation({
         className={`flex flex-col items-center justify-center p-2 rounded-lg transition-all ${
           playerName
             ? isCurrentUser
-              ? 'bg-green-600 text-white shadow-lg scale-105'
+              ? 'bg-primary-600 text-white shadow-lg scale-105'
               : 'bg-white border-2 border-gray-300 text-gray-900'
             : 'bg-gray-100 border-2 border-dashed border-gray-300 text-gray-400'
         }`}
@@ -163,7 +163,7 @@ export default function FootballFormation({
         {/* Legend */}
         <div className="mt-6 flex flex-wrap justify-center gap-4 text-sm">
           <div className="flex items-center gap-2 bg-white bg-opacity-20 px-3 py-2 rounded-lg">
-            <div className="w-4 h-4 bg-green-600 rounded" />
+            <div className="w-4 h-4 bg-primary-600 rounded" />
             <span className="text-white">You</span>
           </div>
           <div className="flex items-center gap-2 bg-white bg-opacity-20 px-3 py-2 rounded-lg">

@@ -34,12 +34,12 @@ export default function Navigation() {
             <Link href="/" className="flex items-center">
               <Image
                 src="/logo.png"
-                alt="Play for Peace"
+                alt="Play4Peace"
                 width={40}
                 height={40}
                 className="mr-2"
               />
-              <span className="text-lg sm:text-xl font-bold text-primary-500 hidden xs:inline">Play for Peace</span>
+              <span className="text-lg sm:text-xl font-bold text-primary-500 hidden xs:inline">Play4Peace</span>
               <span className="text-lg sm:text-xl font-bold text-primary-500 xs:hidden">Play4Peace</span>
             </Link>
           </div>

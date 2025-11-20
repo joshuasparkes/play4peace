@@ -85,7 +85,7 @@ export default function GameDetailsPage() {
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Game Not Found</h1>
             <button
               onClick={() => router.push('/')}
-              className="text-green-600 hover:text-green-700"
+              className="text-primary-600 hover:text-primary-700"
             >
               Back to Games
             </button>
@@ -118,7 +118,7 @@ export default function GameDetailsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div className="flex items-start gap-3">
-              <FontAwesomeIcon icon={faCalendar} className="w-5 h-5 text-green-600 mt-1" />
+              <FontAwesomeIcon icon={faCalendar} className="w-5 h-5 text-primary-600 mt-1" />
               <div>
                 <p className="text-sm text-gray-600">Date</p>
                 <p className="font-semibold text-gray-900">{formatDate(game.date)}</p>
@@ -126,7 +126,7 @@ export default function GameDetailsPage() {
             </div>
 
             <div className="flex items-start gap-3">
-              <FontAwesomeIcon icon={faClock} className="w-5 h-5 text-green-600 mt-1" />
+              <FontAwesomeIcon icon={faClock} className="w-5 h-5 text-primary-600 mt-1" />
               <div>
                 <p className="text-sm text-gray-600">Time</p>
                 <p className="font-semibold text-gray-900">{game.time}</p>
@@ -134,7 +134,7 @@ export default function GameDetailsPage() {
             </div>
 
             <div className="flex items-start gap-3">
-              <FontAwesomeIcon icon={faLocationDot} className="w-5 h-5 text-green-600 mt-1" />
+              <FontAwesomeIcon icon={faLocationDot} className="w-5 h-5 text-primary-600 mt-1" />
               <div>
                 <p className="text-sm text-gray-600">Location</p>
                 <p className="font-semibold text-gray-900">{game.location}</p>
@@ -142,7 +142,7 @@ export default function GameDetailsPage() {
             </div>
 
             <div className="flex items-start gap-3">
-              <FontAwesomeIcon icon={faUsers} className="w-5 h-5 text-green-600 mt-1" />
+              <FontAwesomeIcon icon={faUsers} className="w-5 h-5 text-primary-600 mt-1" />
               <div>
                 <p className="text-sm text-gray-600">Players</p>
                 <p className="font-semibold text-gray-900">
@@ -159,12 +159,12 @@ export default function GameDetailsPage() {
           <button
             onClick={handleToggleAttendance}
             disabled={!isUserAttending && spotsLeft === 0}
-            className={`w-full md:w-auto px-6 py-3 rounded-lg font-semibold transition duration-200 ${
+            className={`w-full md:w-auto px-6 py-3 rounded-pill font-semibold transition duration-200 ${
               isUserAttending
                 ? 'bg-red-600 hover:bg-red-700 text-white'
                 : spotsLeft === 0
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-green-600 hover:bg-green-700 text-white'
+                : 'bg-primary-600 hover:bg-primary-700 text-white'
             }`}
           >
             {isUserAttending ? 'Leave Game' : spotsLeft === 0 ? 'Game Full' : 'Join Game'}

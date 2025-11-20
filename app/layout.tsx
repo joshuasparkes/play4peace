@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Play for Peace - Football Community",
+  title: "Play4Peace - Football Community",
   description: "Book games, view announcements, and share photos with our football community",
   icons: {
     icon: '/logo.png',
