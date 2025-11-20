@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getGames, addGame, deleteGame, getUsersDisplayNames } from '@/lib/firestore';
+import { getGames, addGame, updateGame, deleteGame, getUsersDisplayNames } from '@/lib/firestore';
 import { Game } from '@/types';
 
 export default function GameManager() {
   const [games, setGames] = useState<Game[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingGame, setEditingGame] = useState<Game | null>(null);
   const [userNames, setUserNames] = useState<{ [uid: string]: string }>({});
   const [formData, setFormData] = useState({
     date: '',
@@ -42,10 +43,16 @@ export default function GameManager() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await addGame({
-        ...formData,
-        attendees: [],
-      });
+      if (editingGame) {
+        // Update existing game
+        await updateGame(editingGame.id, formData);
+      } else {
+        // Create new game
+        await addGame({
+          ...formData,
+          attendees: [],
+        });
+      }
       setFormData({
         date: '',
         time: '10:00',
@@ -53,11 +60,34 @@ export default function GameManager() {
         maxPlayers: 22,
       });
       setShowForm(false);
+      setEditingGame(null);
       await loadGames();
     } catch (error) {
-      console.error('Error adding game:', error);
-      alert('Failed to add game. Please try again.');
+      console.error('Error saving game:', error);
+      alert('Failed to save game. Please try again.');
     }
+  };
+
+  const handleEdit = (game: Game) => {
+    setFormData({
+      date: game.date,
+      time: game.time,
+      location: game.location,
+      maxPlayers: game.maxPlayers,
+    });
+    setEditingGame(game);
+    setShowForm(true);
+  };
+
+  const handleCancelEdit = () => {
+    setFormData({
+      date: '',
+      time: '10:00',
+      location: 'Community Football Pitch',
+      maxPlayers: 22,
+    });
+    setEditingGame(null);
+    setShowForm(false);
   };
 
   const handleDelete = async (id: string) => {
@@ -87,7 +117,13 @@ export default function GameManager() {
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900">Manage Games</h2>
         <button
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => {
+            if (showForm) {
+              handleCancelEdit();
+            } else {
+              setShowForm(true);
+            }
+          }}
           className="px-4 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition font-medium"
         >
           {showForm ? 'Cancel' : 'Add New Game'}
@@ -96,7 +132,9 @@ export default function GameManager() {
 
       {showForm && (
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Add New Game</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            {editingGame ? 'Edit Game' : 'Add New Game'}
+          </h3>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -158,7 +196,7 @@ export default function GameManager() {
               type="submit"
               className="w-full bg-purple-600 text-white py-2 px-4 rounded-full hover:bg-purple-700 transition font-semibold"
             >
-              Create Game
+              {editingGame ? 'Update Game' : 'Create Game'}
             </button>
           </form>
         </div>
@@ -201,12 +239,20 @@ export default function GameManager() {
                     )}
                   </div>
                 </div>
-                <button
-                  onClick={() => handleDelete(game.id)}
-                  className="ml-4 px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition text-sm font-medium"
-                >
-                  Delete
-                </button>
+                <div className="ml-4 flex flex-col gap-2">
+                  <button
+                    onClick={() => handleEdit(game)}
+                    className="px-3 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition text-sm font-medium"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(game.id)}
+                    className="px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition text-sm font-medium"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
           ))

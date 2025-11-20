@@ -113,7 +113,7 @@ export default function FootballFormation({
     return (
       <div className="flex-1">
         <h3 className={`text-center font-bold text-lg mb-4 ${
-          teamName === 'Team A' ? 'text-blue-600' : 'text-red-600'
+          teamName === 'Team A' ? 'text-white' : 'text-white'
         }`}>
           {teamName}
         </h3>
@@ -164,15 +164,15 @@ export default function FootballFormation({
         <div className="mt-6 flex flex-wrap justify-center gap-4 text-sm">
           <div className="flex items-center gap-2 bg-white bg-opacity-20 px-3 py-2 rounded-lg">
             <div className="w-4 h-4 bg-purple-600 rounded" />
-            <span className="text-white">You</span>
+            <span className="text-black">You</span>
           </div>
           <div className="flex items-center gap-2 bg-white bg-opacity-20 px-3 py-2 rounded-lg">
             <div className="w-4 h-4 bg-white rounded border-2 border-gray-300" />
-            <span className="text-white">Other Players</span>
+            <span className="text-black">Other Players</span>
           </div>
           <div className="flex items-center gap-2 bg-white bg-opacity-20 px-3 py-2 rounded-lg">
             <div className="w-4 h-4 bg-gray-100 rounded border-2 border-dashed border-gray-300" />
-            <span className="text-white">Available</span>
+            <span className="text-black">Available</span>
           </div>
         </div>
 

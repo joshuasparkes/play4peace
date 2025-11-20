@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getAnnouncements, addAnnouncement, deleteAnnouncement } from '@/lib/firestore';
+import { getAnnouncements, addAnnouncement, updateAnnouncement, deleteAnnouncement } from '@/lib/firestore';
 import { Announcement } from '@/types';
 import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
 
@@ -9,6 +9,7 @@ export default function AnnouncementManager() {
   const { user } = useFirebaseAuth();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -30,20 +31,45 @@ export default function AnnouncementManager() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await addAnnouncement({
-        ...formData,
-        author: user?.displayName || 'Admin',
-      });
+      if (editingAnnouncement) {
+        // Update existing announcement
+        await updateAnnouncement(editingAnnouncement.id, formData);
+      } else {
+        // Create new announcement
+        await addAnnouncement({
+          ...formData,
+          author: user?.displayName || 'Admin',
+        });
+      }
       setFormData({
         title: '',
         content: '',
       });
       setShowForm(false);
+      setEditingAnnouncement(null);
       await loadAnnouncements();
     } catch (error) {
-      console.error('Error adding announcement:', error);
-      alert('Failed to add announcement. Please try again.');
+      console.error('Error saving announcement:', error);
+      alert('Failed to save announcement. Please try again.');
     }
+  };
+
+  const handleEdit = (announcement: Announcement) => {
+    setFormData({
+      title: announcement.title,
+      content: announcement.content,
+    });
+    setEditingAnnouncement(announcement);
+    setShowForm(true);
+  };
+
+  const handleCancelEdit = () => {
+    setFormData({
+      title: '',
+      content: '',
+    });
+    setEditingAnnouncement(null);
+    setShowForm(false);
   };
 
   const handleDelete = async (id: string) => {
@@ -74,7 +100,13 @@ export default function AnnouncementManager() {
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900">Manage Announcements</h2>
         <button
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => {
+            if (showForm) {
+              handleCancelEdit();
+            } else {
+              setShowForm(true);
+            }
+          }}
           className="px-4 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition font-medium"
         >
           {showForm ? 'Cancel' : 'Post New Announcement'}
@@ -83,7 +115,9 @@ export default function AnnouncementManager() {
 
       {showForm && (
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">New Announcement</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            {editingAnnouncement ? 'Edit Announcement' : 'New Announcement'}
+          </h3>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -117,7 +151,7 @@ export default function AnnouncementManager() {
               type="submit"
               className="w-full bg-purple-600 text-white py-2 px-4 rounded-full hover:bg-purple-700 transition font-semibold"
             >
-              Post Announcement
+              {editingAnnouncement ? 'Update Announcement' : 'Post Announcement'}
             </button>
           </form>
         </div>
@@ -143,12 +177,20 @@ export default function AnnouncementManager() {
                     By {announcement.author} • {formatDate(announcement.createdAt)}
                   </div>
                 </div>
-                <button
-                  onClick={() => handleDelete(announcement.id)}
-                  className="ml-4 px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition text-sm font-medium"
-                >
-                  Delete
-                </button>
+                <div className="ml-4 flex flex-col gap-2">
+                  <button
+                    onClick={() => handleEdit(announcement)}
+                    className="px-3 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition text-sm font-medium"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(announcement.id)}
+                    className="px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition text-sm font-medium"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
           ))

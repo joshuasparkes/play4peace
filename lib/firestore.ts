@@ -42,6 +42,11 @@ export const getUsersDisplayNames = async (uids: string[]): Promise<{ [uid: stri
   return displayNames;
 };
 
+export const updateUser = async (uid: string, updates: Partial<User>): Promise<void> => {
+  const userRef = doc(db, 'users', uid);
+  await updateDoc(userRef, updates as any);
+};
+
 // ========================================
 // GAMES COLLECTION
 // ========================================
@@ -113,6 +118,11 @@ export const addAnnouncement = async (announcement: Omit<Announcement, 'id' | 'c
   };
   await setDoc(newAnnouncementRef, newAnnouncement);
   return newAnnouncementRef.id;
+};
+
+export const updateAnnouncement = async (id: string, updates: Partial<Announcement>): Promise<void> => {
+  const announcementRef = doc(db, 'announcements', id);
+  await updateDoc(announcementRef, updates as any);
 };
 
 export const deleteAnnouncement = async (id: string): Promise<void> => {
