@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -14,8 +14,15 @@ export default function SignUpForm() {
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signUp } = useFirebaseAuth();
+  const { signUp, isAuthenticated, loading: authLoading } = useFirebaseAuth();
   const router = useRouter();
+
+  // Redirect to home when authenticated
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      router.push('/');
+    }
+  }, [isAuthenticated, authLoading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +42,7 @@ export default function SignUpForm() {
 
     try {
       await signUp(email, password, displayName);
-      router.push('/');
+      // Don't redirect here - let the useEffect handle it after auth state updates
     } catch (err: any) {
       setError(err.message || 'Failed to create account');
       setLoading(false);
