@@ -295,7 +295,8 @@ export default function PhotoManager() {
                       </div>
                       <button
                         onClick={() => handleDelete(photo.id)}
-                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition"
+                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 md:opacity-0 md:group-hover:opacity-100 opacity-90 hover:opacity-100 transition shadow-lg"
+                        aria-label="Delete photo"
                       >
                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                           <path
