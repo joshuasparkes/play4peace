@@ -4,6 +4,8 @@ import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
+import Navigation from '@/components/Navigation';
 import GameManager from '@/components/admin/GameManager';
 import AnnouncementManager from '@/components/admin/AnnouncementManager';
 import PhotoManager from '@/components/admin/PhotoManager';
@@ -35,12 +37,21 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Navigation />
+
       <nav className="bg-white shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <h1 className="text-xl font-bold text-blue-600">Admin Panel</h1>
-              <span className="text-sm text-gray-600">Welcome, {user.displayName}</span>
+              <Image
+                src="/logo.png"
+                alt="Play for Peace"
+                width={32}
+                height={32}
+                className="hidden sm:block"
+              />
+              <h1 className="text-xl font-bold text-primary-600">Admin Panel</h1>
+              <span className="text-sm text-gray-600 hidden sm:inline">Welcome, {user.displayName}</span>
             </div>
             <div className="flex items-center space-x-4">
               <Link
@@ -49,18 +60,12 @@ export default function AdminPage() {
               >
                 View Site
               </Link>
-              <button
-                onClick={() => router.push('/')}
-                className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition"
-              >
-                Exit Admin
-              </button>
             </div>
           </div>
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8">
         <div className="mb-6">
           <div className="border-b border-gray-200">
             <nav className="-mb-px flex space-x-8">

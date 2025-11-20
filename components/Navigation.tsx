@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -30,10 +31,16 @@ export default function Navigation() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <Link href="/" className="text-lg sm:text-xl font-bold text-green-600 flex items-center">
-              <FontAwesomeIcon icon={faFutbol} className="mr-2 text-green-600" />
-              <span className="hidden xs:inline">Play for Peace</span>
-              <span className="xs:hidden">P4P</span>
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/logo.png"
+                alt="Play for Peace"
+                width={40}
+                height={40}
+                className="mr-2"
+              />
+              <span className="text-lg sm:text-xl font-bold text-primary-500 hidden xs:inline">Play for Peace</span>
+              <span className="text-lg sm:text-xl font-bold text-primary-500 xs:hidden">Play4Peace</span>
             </Link>
           </div>
 
@@ -43,9 +50,9 @@ export default function Navigation() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition ${
+                className={`flex items-center px-4 py-2 rounded-pill text-sm font-medium transition ${
                   isActive(item.href)
-                    ? 'bg-green-100 text-green-800'
+                    ? 'bg-primary-100 text-primary-800'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
               >
@@ -59,7 +66,7 @@ export default function Navigation() {
           <div className="hidden md:flex items-center space-x-3">
             <Link
               href="/profile"
-              className="flex items-center text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-lg hover:bg-gray-100 transition"
+              className="flex items-center text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-pill hover:bg-gray-100 transition"
             >
               <FontAwesomeIcon icon={faUser} className="mr-2 w-3 h-3" />
               <span className="font-semibold">{user?.displayName}</span>
@@ -67,7 +74,7 @@ export default function Navigation() {
             {user?.isAdmin && (
               <Link
                 href="/admin"
-                className="flex items-center px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition font-medium"
+                className="flex items-center px-3 py-2 bg-primary-500 text-white text-sm rounded-pill hover:bg-primary-600 transition font-medium"
               >
                 <FontAwesomeIcon icon={faUserShield} className="mr-2 w-4 h-4" />
                 Admin
@@ -75,7 +82,7 @@ export default function Navigation() {
             )}
             <button
               onClick={logout}
-              className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition"
+              className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-pill transition"
             >
               <FontAwesomeIcon icon={faRightFromBracket} className="w-4 h-4" />
             </button>
@@ -85,14 +92,14 @@ export default function Navigation() {
           <div className="md:hidden flex items-center space-x-2">
             <Link
               href="/profile"
-              className="flex items-center text-xs text-gray-600 bg-gray-50 px-2 py-1.5 rounded-lg hover:bg-gray-100 transition"
+              className="flex items-center text-xs text-gray-600 bg-gray-50 px-2 py-1.5 rounded-pill hover:bg-gray-100 transition"
             >
               <FontAwesomeIcon icon={faUser} className="mr-1.5 w-3 h-3" />
               <span className="font-semibold max-w-[80px] truncate">{user?.displayName}</span>
             </Link>
             <button
               onClick={logout}
-              className="p-2 text-gray-700 hover:bg-gray-100 rounded-lg transition"
+              className="p-2 text-gray-700 hover:bg-gray-100 rounded-pill transition"
             >
               <FontAwesomeIcon icon={faRightFromBracket} className="w-4 h-4" />
             </button>
@@ -109,13 +116,13 @@ export default function Navigation() {
               href={item.href}
               className={`flex flex-col items-center justify-center flex-1 h-full transition ${
                 isActive(item.href)
-                  ? 'text-green-600'
+                  ? 'text-primary-600'
                   : 'text-gray-600'
               }`}
             >
               <FontAwesomeIcon
                 icon={item.icon}
-                className={`w-5 h-5 mb-1 ${isActive(item.href) ? 'text-green-600' : 'text-gray-500'}`}
+                className={`w-5 h-5 mb-1 ${isActive(item.href) ? 'text-primary-600' : 'text-gray-500'}`}
               />
               <span className="text-xs font-medium">{item.label}</span>
             </Link>
@@ -124,12 +131,12 @@ export default function Navigation() {
             <Link
               href="/admin"
               className={`flex flex-col items-center justify-center flex-1 h-full transition ${
-                pathname === '/admin' ? 'text-blue-600' : 'text-gray-600'
+                pathname === '/admin' ? 'text-primary-600' : 'text-gray-600'
               }`}
             >
               <FontAwesomeIcon
                 icon={faUserShield}
-                className={`w-5 h-5 mb-1 ${pathname === '/admin' ? 'text-blue-600' : 'text-gray-500'}`}
+                className={`w-5 h-5 mb-1 ${pathname === '/admin' ? 'text-primary-600' : 'text-gray-500'}`}
               />
               <span className="text-xs font-medium">Admin</span>
             </Link>

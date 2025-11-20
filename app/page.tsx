@@ -105,7 +105,7 @@ export default function Home() {
 
               return (
                 <div key={game.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow">
-                  <div className="bg-gradient-to-r from-green-500 to-blue-500 h-2"></div>
+                  <div className="bg-gradient-to-r from-primary-500 to-blue-500 h-2"></div>
 
                   <Link href={`/games/${game.id}`} className="block p-6 hover:bg-gray-50 transition-colors">
                     <div className="flex justify-between items-start mb-4">
@@ -128,7 +128,7 @@ export default function Home() {
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
-                          className="bg-green-500 h-2 rounded-full transition-all"
+                          className="bg-primary-500 h-2 rounded-full transition-all"
                           style={{ width: `${(game.attendees.length / game.maxPlayers) * 100}%` }}
                         ></div>
                       </div>
@@ -144,7 +144,7 @@ export default function Home() {
                           {game.attendees.slice(0, 5).map((attendeeUid, index) => (
                             <span
                               key={index}
-                              className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                              className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800"
                             >
                               {userNames[attendeeUid] || 'Loading...'}
                             </span>
@@ -160,7 +160,7 @@ export default function Home() {
 
                     <div className="flex gap-2">
                       <div className="flex-1">
-                        <div className="py-2 px-4 rounded-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white text-center">
+                        <div className="py-2 px-4 rounded-pill font-semibold bg-primary-600 hover:bg-primary-700 text-white text-center">
                           View Details
                         </div>
                       </div>
@@ -171,12 +171,12 @@ export default function Home() {
                           handleToggleAttendance(game.id);
                         }}
                         disabled={!isUserAttending && spotsLeft === 0}
-                        className={`flex-1 py-2 px-4 rounded-lg font-semibold transition duration-200 ${
+                        className={`flex-1 py-2 px-4 rounded-pill font-semibold transition duration-200 ${
                           isUserAttending
                             ? 'bg-red-600 hover:bg-red-700 text-white'
                             : spotsLeft === 0
                             ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                            : 'bg-green-600 hover:bg-green-700 text-white'
+                            : 'bg-primary-600 hover:bg-primary-700 text-white'
                         }`}
                       >
                         {isUserAttending ? 'Leave' : spotsLeft === 0 ? 'Full' : 'Join'}
