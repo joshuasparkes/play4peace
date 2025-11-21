@@ -28,7 +28,7 @@ export default function GalleryPage() {
   const loadPhotos = async () => {
     try {
       const loadedPhotos = await getVisiblePhotos();
-      console.log('Loaded photos:', loadedPhotos);
+      console.l?og('Loaded photos:', loadedPhotos);
       setPhotos(loadedPhotos);
     } catch (error) {
       console.error('Error loading photos:', error);
@@ -168,7 +168,7 @@ export default function GalleryPage() {
       {/* Fullscreen Modal */}
       {fullscreenPhoto && (
         <div
-          className="fixed inset-0 z-50 bg-black bg-opacity-95 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-opacity-95 flex items-center justify-center p-4"
           onClick={() => setFullscreenPhoto(null)}
         >
           <button

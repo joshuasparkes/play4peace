@@ -7,9 +7,11 @@ import Navigation from '@/components/Navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faEnvelope, faCalendar, faFutbol, faShieldHalved, faPencil } from '@fortawesome/free-solid-svg-icons';
 import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { db, storage } from '@/lib/firebase';
 import { updateUser } from '@/lib/firestore';
 import { updateProfile, updateEmail, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import Image from 'next/image';
 
 export default function ProfilePage() {
   const { user, firebaseUser, isAuthenticated, loading } = useFirebaseAuth();
@@ -23,6 +25,9 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -75,6 +80,57 @@ export default function ProfilePage() {
     setPassword('');
     setMessage('');
     setError('');
+  };
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Photo must be less than 5MB');
+        return;
+      }
+      setPhotoFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handlePhotoUpload = async () => {
+    if (!photoFile || !user || !firebaseUser) return;
+
+    setUploadingPhoto(true);
+    setError('');
+
+    try {
+      const timestamp = Date.now();
+      const fileName = `${user.uid}_${timestamp}_${photoFile.name}`;
+      const storageRef = ref(storage, `profile-photos/${fileName}`);
+
+      await uploadBytes(storageRef, photoFile);
+      const photoURL = await getDownloadURL(storageRef);
+
+      // Update Firebase Auth profile
+      await updateProfile(firebaseUser, { photoURL });
+
+      // Update Firestore user document
+      await updateUser(user.uid, { photoURL });
+
+      setMessage('Profile photo updated successfully!');
+      setPhotoFile(null);
+      setPhotoPreview(null);
+      setTimeout(() => {
+        setMessage('');
+        window.location.reload();
+      }, 1500);
+    } catch (err) {
+      console.error('Error uploading photo:', err);
+      setError('Failed to upload photo. Please try again.');
+    } finally {
+      setUploadingPhoto(false);
+    }
   };
 
   const handleSaveProfile = async (e: React.FormEvent) => {
@@ -153,8 +209,29 @@ export default function ProfilePage() {
             <>
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-4">
-                  <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                    {user.displayName.charAt(0).toUpperCase()}
+                  <div className="relative group">
+                    {user.photoURL ? (
+                      <Image
+                        src={user.photoURL}
+                        alt={user.displayName}
+                        width={80}
+                        height={80}
+                        className="w-20 h-20 rounded-full object-cover border-2 border-purple-500"
+                      />
+                    ) : (
+                      <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                        {user.displayName.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <label className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition cursor-pointer">
+                      <FontAwesomeIcon icon={faPencil} className="text-white w-5 h-5" />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handlePhotoChange}
+                        className="hidden"
+                      />
+                    </label>
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold text-gray-900">{user.displayName}</h2>
@@ -174,6 +251,43 @@ export default function ProfilePage() {
                   <FontAwesomeIcon icon={faPencil} className="w-3 h-3" />
                 </button>
               </div>
+
+              {photoPreview && (
+                <div className="mb-6 p-4 bg-purple-50 rounded-lg">
+                  <div className="flex items-center gap-4">
+                    <Image
+                      src={photoPreview}
+                      alt="Preview"
+                      width={60}
+                      height={60}
+                      className="w-15 h-15 rounded-full object-cover"
+                    />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900">New profile photo selected</p>
+                      <p className="text-xs text-gray-600">Click upload to save changes</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handlePhotoUpload}
+                        disabled={uploadingPhoto}
+                        className="px-4 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition text-sm font-medium disabled:opacity-50"
+                      >
+                        {uploadingPhoto ? 'Uploading...' : 'Upload'}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setPhotoFile(null);
+                          setPhotoPreview(null);
+                        }}
+                        disabled={uploadingPhoto}
+                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300 transition text-sm font-medium disabled:opacity-50"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center space-x-3 text-gray-700">

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
 import Navigation from '@/components/Navigation';
-import { getGame, toggleAttendance, getUsersDisplayNames } from '@/lib/firestore';
+import { getGame, toggleAttendance, getUsersProfiles } from '@/lib/firestore';
 import { Game } from '@/types';
 import FootballFormation from '@/components/FootballFormation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -18,7 +18,7 @@ export default function GameDetailsPage() {
 
   const [game, setGame] = useState<Game | null>(null);
   const [loading, setLoading] = useState(true);
-  const [userNames, setUserNames] = useState<{ [uid: string]: string }>({});
+  const [userProfiles, setUserProfiles] = useState<{ [uid: string]: { displayName: string; photoURL?: string } }>({});
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -34,10 +34,10 @@ export default function GameDetailsPage() {
       if (loadedGame) {
         setGame(loadedGame);
 
-        // Fetch attendee names
+        // Fetch attendee profiles (names and photos)
         if (loadedGame.attendees.length > 0) {
-          const names = await getUsersDisplayNames(loadedGame.attendees);
-          setUserNames(names);
+          const profiles = await getUsersProfiles(loadedGame.attendees);
+          setUserProfiles(profiles);
         }
       }
     } catch (error) {
@@ -128,7 +128,7 @@ export default function GameDetailsPage() {
             <div className="flex items-start gap-3">
               <FontAwesomeIcon icon={faClock} className="w-5 h-5 text-primary-600 mt-1" />
               <div>
-                <p className="text-sm text-gray-600">Time</p>
+                <p className="text-sm text-gray-600">Meet Time</p>
                 <p className="font-semibold text-gray-900">{game.time}</p>
               </div>
             </div>
@@ -174,7 +174,7 @@ export default function GameDetailsPage() {
         {/* Formation View */}
         <FootballFormation
           attendees={game.attendees}
-          userNames={userNames}
+          userProfiles={userProfiles}
           currentUserId={user?.uid || ''}
           maxPlayers={game.maxPlayers}
         />

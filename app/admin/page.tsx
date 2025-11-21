@@ -9,11 +9,12 @@ import Navigation from '@/components/Navigation';
 import GameManager from '@/components/admin/GameManager';
 import AnnouncementManager from '@/components/admin/AnnouncementManager';
 import PhotoManager from '@/components/admin/PhotoManager';
+import UserDataManager from '@/components/admin/UserDataManager';
 
 export default function AdminPage() {
   const { user, isAuthenticated, loading } = useFirebaseAuth();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'games' | 'announcements' | 'photos'>('games');
+  const [activeTab, setActiveTab] = useState<'games' | 'announcements' | 'photos' | 'data'>('games');
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -67,21 +68,21 @@ export default function AdminPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8">
         <div className="mb-6">
-          <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8">
+          <div className="border-b border-gray-200 overflow-x-auto">
+            <nav className="-mb-px flex space-x-4 sm:space-x-8 min-w-max px-1">
               <button
                 onClick={() => setActiveTab('games')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition ${
+                className={`py-4 px-2 sm:px-1 border-b-2 font-medium text-sm whitespace-nowrap transition ${
                   activeTab === 'games'
                     ? 'border-primary-500 text-primary-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                Manage Games
+                Games
               </button>
               <button
                 onClick={() => setActiveTab('announcements')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition ${
+                className={`py-4 px-2 sm:px-1 border-b-2 font-medium text-sm whitespace-nowrap transition ${
                   activeTab === 'announcements'
                     ? 'border-primary-500 text-primary-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -91,13 +92,23 @@ export default function AdminPage() {
               </button>
               <button
                 onClick={() => setActiveTab('photos')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition ${
+                className={`py-4 px-2 sm:px-1 border-b-2 font-medium text-sm whitespace-nowrap transition ${
                   activeTab === 'photos'
                     ? 'border-primary-500 text-primary-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                Photo Gallery
+                Photo
+              </button>
+              <button
+                onClick={() => setActiveTab('data')}
+                className={`py-4 px-2 sm:px-1 border-b-2 font-medium text-sm whitespace-nowrap transition ${
+                  activeTab === 'data'
+                    ? 'border-primary-500 text-primary-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Users
               </button>
             </nav>
           </div>
@@ -106,6 +117,7 @@ export default function AdminPage() {
         {activeTab === 'games' && <GameManager />}
         {activeTab === 'announcements' && <AnnouncementManager />}
         {activeTab === 'photos' && <PhotoManager />}
+        {activeTab === 'data' && <UserDataManager />}
       </main>
     </div>
   );

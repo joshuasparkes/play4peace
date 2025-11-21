@@ -47,6 +47,32 @@ export const updateUser = async (uid: string, updates: Partial<User>): Promise<v
   await updateDoc(userRef, updates as any);
 };
 
+export const getUsersProfiles = async (uids: string[]): Promise<{ [uid: string]: { displayName: string; photoURL?: string } }> => {
+  const profiles: { [uid: string]: { displayName: string; photoURL?: string } } = {};
+
+  await Promise.all(
+    uids.map(async (uid) => {
+      const userDoc = await getDoc(doc(db, 'users', uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data() as User;
+        profiles[uid] = {
+          displayName: userData.displayName,
+          photoURL: userData.photoURL,
+        };
+      }
+    })
+  );
+
+  return profiles;
+};
+
+export const getAllUsers = async (): Promise<User[]> => {
+  const usersCol = collection(db, 'users');
+  const q = query(usersCol, orderBy('createdAt', 'desc'));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(doc => ({ ...doc.data() } as User));
+};
+
 // ========================================
 // GAMES COLLECTION
 // ========================================

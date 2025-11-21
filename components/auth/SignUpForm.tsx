@@ -4,8 +4,11 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFutbol, faEnvelope, faLock, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faFutbol, faEnvelope, faLock, faUser, faCamera } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { storage } from '@/lib/firebase';
+import Image from 'next/image';
 
 export default function SignUpForm() {
   const [email, setEmail] = useState('');
@@ -14,15 +17,34 @@ export default function SignUpForm() {
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signUp, isAuthenticated, loading: authLoading } = useFirebaseAuth();
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const { signUp, refreshUser, isAuthenticated, loading: authLoading } = useFirebaseAuth();
   const router = useRouter();
 
-  // Redirect to home when authenticated
+  // Redirect to home when authenticated (but not while loading/uploading photo)
   useEffect(() => {
-    if (!authLoading && isAuthenticated) {
+    if (!authLoading && isAuthenticated && !loading) {
       router.push('/');
     }
-  }, [isAuthenticated, authLoading, router]);
+  }, [isAuthenticated, authLoading, loading, router]);
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Photo must be less than 5MB');
+        return;
+      }
+      setPhotoFile(file);
+      setError('');
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,9 +63,69 @@ export default function SignUpForm() {
     setLoading(true);
 
     try {
+      // console.log('🔵 Starting sign up process...');
+      // console.log('Display Name:', displayName);
+      // console.log('Has Photo:', !!photoFile);
+
+      // First create the account (without photo)
+      // console.log('🔵 Creating account...');
       await signUp(email, password, displayName);
-      // Don't redirect here - let the useEffect handle it after auth state updates
+      // console.log('✅ Account created');
+
+      // Then upload photo if one was selected (now user is authenticated)
+      if (photoFile) {
+        // console.log('🔵 Uploading photo...');
+        try {
+          const timestamp = Date.now();
+          const fileName = `signup_${timestamp}_${photoFile.name}`;
+          const storageRef = ref(storage, `profile-photos/${fileName}`);
+
+          // console.log('🔵 Uploading to storage...');
+          await uploadBytes(storageRef, photoFile);
+          const photoURL = await getDownloadURL(storageRef);
+          // console.log('✅ Photo uploaded:', photoURL);
+
+          // Update the profile with photo URL
+          const { auth } = await import('@/lib/firebase');
+          const { updateProfile } = await import('firebase/auth');
+          const { updateUser } = await import('@/lib/firestore');
+
+          // console.log('🔵 Current user:', auth.currentUser?.uid);
+          // console.log('🔵 Current user displayName:', auth.currentUser?.displayName);
+
+          if (auth.currentUser) {
+            // Update Firestore first, then Firebase Auth
+            // This ensures when onAuthStateChanged fires, Firestore has the photo
+            // console.log('🔵 Updating Firestore...');
+            await updateUser(auth.currentUser.uid, { photoURL });
+            // console.log('✅ Firestore updated');
+
+            // console.log('🔵 Updating Firebase Auth profile...');
+            await updateProfile(auth.currentUser, { photoURL });
+            // console.log('✅ Firebase Auth updated');
+
+            // console.log('🔵 Final auth state - displayName:', auth.currentUser.displayName);
+            // console.log('🔵 Final auth state - photoURL:', auth.currentUser.photoURL);
+          }
+        } catch (photoErr) {
+          // console.error('❌ Error uploading photo:', photoErr);
+          setError('Account created, but photo upload failed. You can add a photo from your profile page.');
+        }
+      }
+
+      // console.log('🔵 Refreshing user context with latest data...');
+      // Force refresh of auth context with updated data from Firestore
+      await refreshUser();
+      // console.log('✅ User context refreshed');
+
+      // console.log('🔵 Waiting for context to update...');
+      // Wait a moment for auth context to update, then allow redirect
+      setTimeout(() => {
+        // console.log('✅ Sign up complete, allowing redirect');
+        setLoading(false);
+      }, 1000);
     } catch (err: any) {
+      // console.error('❌ Sign up error:', err);
       setError(err.message || 'Failed to create account');
       setLoading(false);
     }
@@ -83,6 +165,49 @@ export default function SignUpForm() {
                 required
               />
             </div>
+          </div>
+
+          <div>
+            <label htmlFor="photo" className="block text-sm font-medium text-gray-700 mb-2">
+              Profile Photo <span className="text-gray-500 text-xs">(Optional)</span>
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FontAwesomeIcon icon={faCamera} className="text-gray-400 w-5 h-5" />
+              </div>
+              <input
+                type="file"
+                id="photo"
+                accept="image/*"
+                onChange={handlePhotoChange}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition text-gray-800 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+              />
+            </div>
+            {photoPreview && (
+              <div className="mt-3 flex items-center gap-3">
+                <Image
+                  src={photoPreview}
+                  alt="Preview"
+                  width={60}
+                  height={60}
+                  className="w-15 h-15 rounded-full object-cover border-2 border-purple-500"
+                />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-900">Photo selected</p>
+                  <p className="text-xs text-gray-600">This will be your profile photo</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPhotoFile(null);
+                    setPhotoPreview(null);
+                  }}
+                  className="text-sm text-red-600 hover:text-red-700 font-medium"
+                >
+                  Remove
+                </button>
+              </div>
+            )}
           </div>
 
           <div>

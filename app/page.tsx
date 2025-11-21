@@ -137,7 +137,7 @@ export default function Home() {
                       </p>
                     </div>
 
-                    {game.attendees.length > 0 && (
+                    {/* {game.attendees.length > 0 && (
                       <div className="mb-4">
                         <p className="text-xs text-gray-600 mb-2">Confirmed players:</p>
                         <div className="flex flex-wrap gap-2">
@@ -156,11 +156,11 @@ export default function Home() {
                           )}
                         </div>
                       </div>
-                    )}
+                    )} */}
 
                     <div className="flex gap-2">
                       <div className="flex-1">
-                        <div className="py-2 px-4 rounded-full font-semibold bg-purple-500 hover:bg-purple-700 text-white text-center">
+                        <div className="py-2 px-4 rounded-full font-semibold bg-white-500 hover:bg-purple-200 text-purple-700 pointer-cursor text-center">
                           View Details
                         </div>
                       </div>
