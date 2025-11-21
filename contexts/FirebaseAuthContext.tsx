@@ -115,9 +115,13 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
     await setDoc(doc(db, 'users', userCredential.user.uid), newUser);
     // console.log('🟢 Firestore document created');
 
-    // Send email verification
+    // Send email verification with custom action URL
     // console.log('🟢 Sending verification email...');
-    await sendEmailVerification(userCredential.user);
+    const actionCodeSettings = {
+      url: `${window.location.origin}/auth/action`,
+      handleCodeInApp: true,
+    };
+    await sendEmailVerification(userCredential.user, actionCodeSettings);
     // console.log('🟢 Verification email sent');
   };
 
@@ -176,7 +180,11 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
 
   const resendVerificationEmail = async () => {
     if (auth.currentUser && !auth.currentUser.emailVerified) {
-      await sendEmailVerification(auth.currentUser);
+      const actionCodeSettings = {
+        url: `${window.location.origin}/auth/action`,
+        handleCodeInApp: true,
+      };
+      await sendEmailVerification(auth.currentUser, actionCodeSettings);
     } else {
       throw new Error('No user logged in or email already verified');
     }
