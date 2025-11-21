@@ -4,6 +4,7 @@ import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navigation from '@/components/Navigation';
+import EmailVerificationGuard from '@/components/EmailVerificationGuard';
 import { getVisiblePhotos } from '@/lib/firestore';
 import { Photo } from '@/types';
 import Image from 'next/image';
@@ -70,8 +71,9 @@ export default function GalleryPage() {
   const filteredWeeks = selectedWeek ? [selectedWeek] : weeks;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navigation />
+    <EmailVerificationGuard>
+      <div className="min-h-screen bg-gray-50">
+        <Navigation />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8">
         <div className="mb-8">
@@ -196,6 +198,7 @@ export default function GalleryPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </EmailVerificationGuard>
   );
 }

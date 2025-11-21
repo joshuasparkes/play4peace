@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
 import Navigation from '@/components/Navigation';
+import EmailVerificationGuard from '@/components/EmailVerificationGuard';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faEnvelope, faCalendar, faFutbol, faShieldHalved, faPencil } from '@fortawesome/free-solid-svg-icons';
 import { doc, getDoc } from 'firebase/firestore';
@@ -194,8 +195,9 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navigation />
+    <EmailVerificationGuard>
+      <div className="min-h-screen bg-gray-50">
+        <Navigation />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8">
         <div className="mb-8">
@@ -440,6 +442,7 @@ export default function ProfilePage() {
           </div>
         </div>
       </main>
-    </div>
+      </div>
+    </EmailVerificationGuard>
   );
 }

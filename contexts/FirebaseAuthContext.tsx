@@ -10,6 +10,7 @@ import {
   updateProfile,
   GoogleAuthProvider,
   signInWithPopup,
+  sendEmailVerification,
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
@@ -24,7 +25,9 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  resendVerificationEmail: () => Promise<void>;
   isAuthenticated: boolean;
+  emailVerified: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,6 +36,7 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [emailVerified, setEmailVerified] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -41,6 +45,7 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
         // console.log('🔶 Firebase user displayName:', firebaseUser.displayName);
         // console.log('🔶 Firebase user photoURL:', firebaseUser.photoURL);
         setFirebaseUser(firebaseUser);
+        setEmailVerified(firebaseUser.emailVerified);
 
         // Fetch user profile from Firestore
         // console.log('🔶 Fetching Firestore profile...');
@@ -74,6 +79,7 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
         // console.log('🔶 No authenticated user');
         setUser(null);
         setFirebaseUser(null);
+        setEmailVerified(false);
       }
       setLoading(false);
     });
@@ -108,6 +114,11 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
     // console.log('🟢 Creating Firestore document:', newUser);
     await setDoc(doc(db, 'users', userCredential.user.uid), newUser);
     // console.log('🟢 Firestore document created');
+
+    // Send email verification
+    // console.log('🟢 Sending verification email...');
+    await sendEmailVerification(userCredential.user);
+    // console.log('🟢 Verification email sent');
   };
 
   const login = async (email: string, password: string) => {
@@ -149,12 +160,25 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
   const refreshUser = async () => {
     if (auth.currentUser) {
       // console.log('🔄 Refreshing user data...');
+      // Reload Firebase Auth user to get latest emailVerified status
+      await auth.currentUser.reload();
+
       const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
       if (userDoc.exists()) {
         const userData = userDoc.data() as User;
         // console.log('🔄 Refreshed user data:', userData);
         setUser(userData);
       }
+      // Update emailVerified status from reloaded auth user
+      setEmailVerified(auth.currentUser.emailVerified);
+    }
+  };
+
+  const resendVerificationEmail = async () => {
+    if (auth.currentUser && !auth.currentUser.emailVerified) {
+      await sendEmailVerification(auth.currentUser);
+    } else {
+      throw new Error('No user logged in or email already verified');
     }
   };
 
@@ -169,7 +193,9 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
         signInWithGoogle,
         logout,
         refreshUser,
+        resendVerificationEmail,
         isAuthenticated: !!user,
+        emailVerified,
       }}
     >
       {children}

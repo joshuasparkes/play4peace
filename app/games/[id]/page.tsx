@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
 import Navigation from '@/components/Navigation';
+import EmailVerificationGuard from '@/components/EmailVerificationGuard';
 import { getGame, toggleAttendance, getUsersProfiles } from '@/lib/firestore';
 import { Game } from '@/types';
 import FootballFormation from '@/components/FootballFormation';
@@ -99,8 +100,9 @@ export default function GameDetailsPage() {
   const spotsLeft = game.maxPlayers - game.attendees.length;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navigation />
+    <EmailVerificationGuard>
+      <div className="min-h-screen bg-gray-50">
+        <Navigation />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8">
         {/* Back Button */}
@@ -180,5 +182,6 @@ export default function GameDetailsPage() {
         />
       </main>
     </div>
+    </EmailVerificationGuard>
   );
 }

@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Navigation from '@/components/Navigation';
+import EmailVerificationGuard from '@/components/EmailVerificationGuard';
 import { getGames, toggleAttendance, seedInitialData, getUsersDisplayNames } from '@/lib/firestore';
 import { Game } from '@/types';
 
@@ -80,8 +81,9 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen  bg-gray-50">
-      <Navigation />
+    <EmailVerificationGuard>
+      <div className="min-h-screen  bg-gray-50">
+        <Navigation />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8">
         <div className="mb-8">
@@ -189,6 +191,7 @@ export default function Home() {
           </div>
         )}
       </main>
-    </div>
+      </div>
+    </EmailVerificationGuard>
   );
 }
