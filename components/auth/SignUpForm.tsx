@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFutbol, faEnvelope, faLock, faUser, faCamera, faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope, faLock, faUser, faCamera, faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { faGoogle } from '@fortawesome/free-brands-svg-icons';
 import Link from 'next/link';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -176,8 +176,14 @@ export default function SignUpForm() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-blue-50 px-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
-            <FontAwesomeIcon icon={faFutbol} className="text-primary-600 text-2xl" />
+          <div className="inline-flex items-center justify-center mb-4">
+            <Image
+              src="/logo.png"
+              alt="Play4Peace"
+              width={64}
+              height={64}
+              className="w-16 h-16"
+            />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Join Play4Peace
