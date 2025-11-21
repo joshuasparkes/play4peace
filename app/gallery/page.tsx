@@ -28,7 +28,7 @@ export default function GalleryPage() {
   const loadPhotos = async () => {
     try {
       const loadedPhotos = await getVisiblePhotos();
-      console.l?og('Loaded photos:', loadedPhotos);
+      console.log('Loaded photos:', loadedPhotos);
       setPhotos(loadedPhotos);
     } catch (error) {
       console.error('Error loading photos:', error);

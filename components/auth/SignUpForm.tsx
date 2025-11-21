@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFutbol, faEnvelope, faLock, faUser, faCamera } from '@fortawesome/free-solid-svg-icons';
+import { faFutbol, faEnvelope, faLock, faUser, faCamera, faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
+import { faGoogle } from '@fortawesome/free-brands-svg-icons';
 import Link from 'next/link';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/lib/firebase';
@@ -19,7 +20,8 @@ export default function SignUpForm() {
   const [loading, setLoading] = useState(false);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-  const { signUp, refreshUser, isAuthenticated, loading: authLoading } = useFirebaseAuth();
+  const [emailTouched, setEmailTouched] = useState(false);
+  const { signUp, signInWithGoogle, refreshUser, isAuthenticated, loading: authLoading } = useFirebaseAuth();
   const router = useRouter();
 
   // Redirect to home when authenticated (but not while loading/uploading photo)
@@ -46,9 +48,34 @@ export default function SignUpForm() {
     }
   };
 
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // Trim whitespace from email
+    const trimmedEmail = email.trim();
+
+    // Validate email format
+    if (!trimmedEmail) {
+      setError('Email is required');
+      return;
+    }
+
+    if (!validateEmail(trimmedEmail)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    // Validate display name
+    if (!displayName.trim()) {
+      setError('Display name is required');
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError('Passwords do not match');
@@ -69,7 +96,7 @@ export default function SignUpForm() {
 
       // First create the account (without photo)
       // console.log('🔵 Creating account...');
-      await signUp(email, password, displayName);
+      await signUp(trimmedEmail, password, displayName.trim());
       // console.log('✅ Account created');
 
       // Then upload photo if one was selected (now user is authenticated)
@@ -127,6 +154,20 @@ export default function SignUpForm() {
     } catch (err: any) {
       // console.error('❌ Sign up error:', err);
       setError(err.message || 'Failed to create account');
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError('');
+    setLoading(true);
+
+    try {
+      await signInWithGoogle();
+      // Reset loading to allow redirect
+      setLoading(false);
+    } catch (err: any) {
+      setError('Failed to sign in with Google');
       setLoading(false);
     }
   };
@@ -223,11 +264,30 @@ export default function SignUpForm() {
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onBlur={() => setEmailTouched(true)}
                 placeholder="you@example.com"
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition text-gray-800"
+                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent outline-none transition text-gray-800 ${
+                  emailTouched && email
+                    ? validateEmail(email.trim())
+                      ? 'border-green-300 focus:ring-green-500'
+                      : 'border-red-300 focus:ring-red-500'
+                    : 'border-gray-300 focus:ring-primary-500'
+                }`}
                 required
               />
             </div>
+            {emailTouched && email && !validateEmail(email.trim()) && (
+              <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                <FontAwesomeIcon icon={faTimesCircle} className="w-3 h-3" />
+                Please enter a valid email address
+              </p>
+            )}
+            {emailTouched && email && validateEmail(email.trim()) && (
+              <p className="mt-1 text-xs text-green-600 flex items-center gap-1">
+                <FontAwesomeIcon icon={faCheckCircle} className="w-3 h-3" />
+                Valid email address
+              </p>
+            )}
           </div>
 
           <div>
@@ -284,6 +344,26 @@ export default function SignUpForm() {
             {loading ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
+
+        <div className="mt-6 mb-6">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">Or continue with</span>
+            </div>
+          </div>
+        </div>
+
+        <button
+          onClick={handleGoogleSignIn}
+          disabled={loading}
+          className="w-full bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-semibold py-3 px-4 rounded-full transition duration-200 shadow hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+        >
+          <FontAwesomeIcon icon={faGoogle} className="text-xl" />
+          {loading ? 'Signing In...' : 'Sign up with Google'}
+        </button>
 
         <div className="mt-6 text-center text-sm text-gray-600">
           Already have an account?{' '}

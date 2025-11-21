@@ -8,6 +8,8 @@ import {
   signOut,
   onAuthStateChanged,
   updateProfile,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
@@ -19,6 +21,7 @@ interface AuthContextType {
   loading: boolean;
   signUp: (email: string, password: string, displayName: string, photoURL?: string) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   isAuthenticated: boolean;
@@ -111,6 +114,34 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
     await signInWithEmailAndPassword(auth, email, password);
   };
 
+  const signInWithGoogle = async () => {
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+
+    // Check if user document exists in Firestore
+    const userDoc = await getDoc(doc(db, 'users', result.user.uid));
+
+    if (!userDoc.exists()) {
+      // Create new user document for first-time Google sign-in
+      const newUser: User = {
+        uid: result.user.uid,
+        email: result.user.email || '',
+        displayName: result.user.displayName || 'User',
+        isAdmin: false,
+        createdAt: new Date().toISOString(),
+        lastActive: new Date().toISOString(),
+        ...(result.user.photoURL && { photoURL: result.user.photoURL })
+      };
+
+      await setDoc(doc(db, 'users', result.user.uid), newUser);
+    } else {
+      // Update last active for existing user
+      await updateDoc(doc(db, 'users', result.user.uid), {
+        lastActive: new Date().toISOString(),
+      });
+    }
+  };
+
   const logout = async () => {
     await signOut(auth);
   };
@@ -135,6 +166,7 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
         loading,
         signUp,
         login,
+        signInWithGoogle,
         logout,
         refreshUser,
         isAuthenticated: !!user,

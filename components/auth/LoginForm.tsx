@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFutbol, faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
+import { faGoogle } from '@fortawesome/free-brands-svg-icons';
 import Link from 'next/link';
 
 export default function LoginForm() {
@@ -12,7 +13,7 @@ export default function LoginForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login, isAuthenticated, loading: authLoading } = useFirebaseAuth();
+  const { login, signInWithGoogle, isAuthenticated, loading: authLoading } = useFirebaseAuth();
   const router = useRouter();
 
   // Redirect to home when authenticated
@@ -22,16 +23,55 @@ export default function LoginForm() {
     }
   }, [isAuthenticated, authLoading, router]);
 
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+
+    // Trim whitespace from email
+    const trimmedEmail = email.trim();
+
+    // Validate email format
+    if (!trimmedEmail) {
+      setError('Email is required');
+      return;
+    }
+
+    if (!validateEmail(trimmedEmail)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    if (!password) {
+      setError('Password is required');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await login(trimmedEmail, password);
+      // Don't redirect here - let the useEffect handle it after auth state updates
+    } catch (err: any) {
+      setError('Invalid email or password');
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
     setError('');
     setLoading(true);
 
     try {
-      await login(email, password);
-      // Don't redirect here - let the useEffect handle it after auth state updates
+      await signInWithGoogle();
+      // Reset loading to allow redirect
+      setLoading(false);
     } catch (err: any) {
-      setError('Invalid email or password');
+      setError('Failed to sign in with Google');
       setLoading(false);
     }
   };
@@ -106,6 +146,26 @@ export default function LoginForm() {
             {loading ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
+
+        <div className="mt-6 mb-6">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">Or continue with</span>
+            </div>
+          </div>
+        </div>
+
+        <button
+          onClick={handleGoogleSignIn}
+          disabled={loading}
+          className="w-full bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-semibold py-3 px-4 rounded-full transition duration-200 shadow hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+        >
+          <FontAwesomeIcon icon={faGoogle} className="text-xl" />
+          {loading ? 'Signing In...' : 'Sign in with Google'}
+        </button>
 
         <div className="mt-6 text-center text-sm text-gray-600">
           Don't have an account?{' '}
